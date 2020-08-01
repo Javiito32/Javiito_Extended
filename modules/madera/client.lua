@@ -1,0 +1,469 @@
+--en la zona de minas: x rocas con un máximo extraíble. Se regenera con el tiempo, si llega a 0 no puedes minar.
+local clicks = 0
+local roca = nil
+local npcvender = true --false si no quieres el npc que te lo cambia por dinero
+local level = 4
+local fundir = {x = -584.23, y = 5285.78, z = 70.26}
+local job
+local blips = {
+    {title="Aserradero", colour=1, id=238, x = -552.44, y = 5348.45, z = 74.74-1},
+    {title="Cortar/empaquetar madera", colour=2, id=238, x = -584.23, y = 5285.78, z = 70.26},
+    {title="Venta de madera", colour=3, id=238, x = 1952.27,y = 3841.63,z = 32.18},
+    {title="Vehículo de trabajo", colour=4, id=238, x = 1200.33, y = -1274.0, z = 34.70}
+}
+local JEXLevel = nil
+
+RegisterNetEvent('JEX:setLevel')
+AddEventHandler('JEX:setLevel', function(work, level)
+    if work == 'madedero' then
+        JEXLevel = level
+    end
+end)
+
+RegisterNetEvent('pop_university:setMineLevel')
+AddEventHandler('pop_university:setMineLevel',function(totalLevel)
+    level = totalLevel
+end)
+
+RegisterNetEvent('leñar:recibodatacliente')
+AddEventHandler('leñar:recibodatacliente',function(data)
+    rocas = data
+end)
+
+function DrawText3D(x,y,z, text) 
+
+    local onScreen,_x,_y=World3dToScreen2d(x,y,z)
+    local px,py,pz=table.unpack(GetGameplayCamCoords())
+    local dist = GetDistanceBetweenCoords(px,py,pz, x,y,z, 1)
+ 
+    local scale = (1/dist)*2
+    local fov = (1/GetGameplayCamFov())*100
+    local scale = scale*fov
+   
+    if onScreen then
+        SetTextScale(0.0*scale, 1.1*scale)
+        SetTextFont(0)
+        SetTextProportional(1)
+        -- SetTextScale(0.0, 0.55)
+        SetTextColour(255, 255, 255, 255)
+        SetTextDropshadow(0, 0, 0, 0, 255)
+        SetTextEdge(2, 0, 0, 0, 150)
+        SetTextDropShadow()
+        SetTextOutline()
+        SetTextEntry("STRING")
+        SetTextCentre(1)
+        AddTextComponentString(text)
+        DrawText(_x,_y)
+    end
+end
+
+function DrawText3Dlittle(x,y,z, text) 
+
+    local onScreen,_x,_y=World3dToScreen2d(x,y,z)
+    local px,py,pz=table.unpack(GetGameplayCamCoords())
+    local dist = GetDistanceBetweenCoords(px,py,pz, x,y,z, 1)
+ 
+    local scale = (1/dist)*2
+    local fov = (1/GetGameplayCamFov())*100
+    local scale = scale*fov
+   
+    if onScreen then
+        SetTextScale(0.0*scale, 0.5*scale)
+        SetTextFont(0)
+        SetTextProportional(1)
+        -- SetTextScale(0.0, 0.55)
+        SetTextColour(255, 255, 255, 255)
+        SetTextDropshadow(0, 0, 0, 0, 255)
+        SetTextEdge(2, 0, 0, 0, 150)
+        SetTextDropShadow()
+        SetTextOutline()
+        SetTextEntry("STRING")
+        SetTextCentre(1)
+        AddTextComponentString(text)
+        DrawText(_x,_y)
+    end
+end
+
+function DisplayHelpText(str)
+    SetTextComponentFormat("STRING")
+    AddTextComponentString(str)
+    DisplayHelpTextFromStringLabel(0, 0, 1, -1)
+end
+
+ function get3DDistance(x1, y1, z1, x2, y2, z2)
+    local a = (x1 - x2) * (x1 - x2)
+    local b = (y1 - y2) * (y1 - y2)
+    local c = (z1 - z2) * (z1 - z2)
+    return math.sqrt(a + b + c)
+end
+
+function createNPC()
+    --PRIMER NPC
+    local created_ped = CreatePed(5, modelHash ,1953.37,3840.38,31.18,327.48, false, true)
+    local created_ped = CreatePed(5, modelHash ,-584.9,5286.17,69.26,88.48, false, true)
+	FreezeEntityPosition(created_ped, true)
+	SetEntityInvincible(created_ped, true)
+	SetBlockingOfNonTemporaryEvents(created_ped, true)
+	TaskStartScenarioInPlace(created_ped, "WORLD_HUMAN_SMOKING", 0, true)
+end
+
+Citizen.CreateThread(function()
+    local  wanted_model= "A_M_O_Tramp_01"
+     modelHash = GetHashKey(wanted_model)
+    RequestModel(modelHash)
+    while not HasModelLoaded(modelHash) do
+       	Wait(1)
+    end
+    createNPC() 
+end)
+
+function AbrirMenu()
+
+	local elements = {
+		{label = "Sí",value = "yes"},
+		{label = "No",value = "no"}
+	}
+
+	ESX.UI.Menu.CloseAll()
+
+	ESX.UI.Menu.Open(
+		'default', GetCurrentResourceName(), 'get_job',
+		{
+			title  = '¿Quieres que me quede con tu madera y te de dinero a cambio?',
+			align    = 'bottom-right',
+			elements = elements
+		},
+		function(data, menu)	
+			if data.current.value == 'yes' then
+				TriggerServerEvent('leñar:quitomin')
+			end
+			menu.close()
+		end,
+		function(data, menu)
+			menu.close()
+		end
+	)
+end
+
+local isFunding = false
+
+function craft(item)
+	isFunding = true
+	Citizen.CreateThread(function()
+		startAnim("mini@repair", "fixing_a_ped")
+		Wait(10000)
+		ClearPedTasks(PlayerPedId())
+		isFunding = false
+		TriggerServerEvent('leñar:craft',item)
+	end)
+end
+
+function startAnim(lib, anim)
+	ESX.Streaming.RequestAnimDict(lib, function()
+		TaskPlayAnim(PlayerPedId(), lib, anim, 8.0, -8.0, -1, 0, 0, false, false, false)
+	end)
+end
+
+function AbrirFundir()
+
+	local elements = {
+        {label = "Cortar y empaquetar Pino",value = "pino"},
+		{label = "Cortar y empaquetar Roble",value = "roble"},
+		{label = "Cortar y empaquetar Nogal",value = "nogal"},
+		{label = "Cortar y empaquetar Abeto",value = "abeto"},
+		{label = "Cortar y empaquetar Abedul",value = "abedul"},
+	}
+
+	ESX.UI.Menu.CloseAll()
+
+	ESX.UI.Menu.Open(
+		'default', GetCurrentResourceName(), 'fundir',
+		{
+			title  = '¿Quieres cortar y empaquetar algunas de esas maderas?',
+			align    = 'bottom-right',
+			elements = elements
+		},
+		function(data, menu)	
+			if data.current.value == 'pino' and isFunding == false then
+                craft(data.current.value)
+            elseif data.current.value == 'roble' and isFunding == false then
+				craft(data.current.value)    
+			elseif data.current.value == 'nogal' and isFunding == false then
+				craft(data.current.value)
+			elseif data.current.value == 'abedul' and isFunding == false  then
+				craft(data.current.value)
+			elseif data.current.value == 'abeto' and isFunding == false  then
+				craft(data.current.value)
+			end
+			menu.close()
+		end,
+		function(data, menu)
+			menu.close()
+		end
+	)
+end
+
+local cooldown = 0
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(10)
+        if job ~= "madedero" then
+            Citizen.Wait(1000)
+        elseif job == "madedero" and cooldown > 0 then
+           Citizen.Wait(100)
+           cooldown = cooldown - 100
+        end
+    end
+end)
+
+---------------------------------
+--------Ropa de trabajo----------
+---------------------------------
+function setUniform(job, playerPed)
+    TriggerEvent('skinchanger:getSkin', function(skin)
+  
+      if skin.sex == 0 then
+        if Config.Uniforms[job].male ~= nil then
+          TriggerEvent('skinchanger:loadClothes', skin, Config.Uniforms[job].male)
+        else
+          ESX.ShowNotification(_U('no_outfit'))
+        end
+      else
+        if Config.Uniforms[job].female ~= nil then
+          TriggerEvent('skinchanger:loadClothes', skin, Config.Uniforms[job].female)
+        else
+          ESX.ShowNotification(_U('no_outfit'))
+        end
+      end
+  
+    end)
+end
+
+function restoreWear()
+    ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
+        local model = nil
+
+        if skin.sex == 0 then
+          model = GetHashKey("mp_m_freemode_01")
+        else
+          model = GetHashKey("mp_f_freemode_01")
+        end
+
+        RequestModel(model)
+        while not HasModelLoaded(model) do
+          RequestModel(model)
+          Citizen.Wait(1)
+        end
+
+        SetPlayerModel(PlayerId(), model)
+        SetModelAsNoLongerNeeded(model)
+
+        TriggerEvent('skinchanger:loadSkin', skin)
+        TriggerEvent('esx:restoreLoadout')
+
+        local playerPed = GetPlayerPed(-1)
+        -- SetPedArmour(playerPed, 0)
+        ClearPedBloodDamage(playerPed)
+        ResetPedVisibleDamage(playerPed)
+        ClearPedLastWeaponDamage(playerPed)
+      end)
+end
+
+
+---------------------------------
+local onservice = false
+Citizen.CreateThread(function()
+    while true do
+        if job == 'madedero' then
+            if IsPedDead then
+                clicks = 0
+                roca = nil
+            end
+            Citizen.Wait(0)
+            local coords = GetEntityCoords(GetPlayerPed(-1))
+            for i=1, #rocas, 1 do
+                if GetDistanceBetweenCoords(coords.x,coords.y,coords.z,rocas[i].x,rocas[i].y,rocas[i].z) < 75 then
+                    if rocas[i].vida >= 25 then
+                        DrawText3D(rocas[i].x,rocas[i].y,rocas[i].z, rocas[i].tipo.." ~g~"..rocas[i].vida.."/"..rocas[i].max)
+                    elseif rocas[i].vida >= 12 then
+                        DrawText3D(rocas[i].x,rocas[i].y,rocas[i].z,rocas[i].tipo.." ~b~"..rocas[i].vida.."/"..rocas[i].max)
+                    elseif rocas[i].vida < 5 and rocas[i].vida ~= 0 then
+                        DrawText3D(rocas[i].x,rocas[i].y,rocas[i].z, rocas[i].tipo.." ~o~"..rocas[i].vida.."/"..rocas[i].max)
+                    elseif rocas[i].vida >= 0 then
+                        DrawText3D(rocas[i].x,rocas[i].y,rocas[i].z, rocas[i].tipo.." ~r~"..rocas[i].vida.."/"..rocas[i].max)  
+                    end
+                end
+            end
+
+            if GetCurrentPedWeapon(GetPlayerPed(-1),"WEAPON_HATCHET",true) then
+                if IsControlJustReleased(1,  24) then --click izq
+                    if cooldown == 0 then
+                        for i=1, #rocas, 1 do
+                            if GetDistanceBetweenCoords(coords.x,coords.y,coords.z,rocas[i].x,rocas[i].y,rocas[i].z) < 1.8 and rocas[i].vida > 0 then
+                                roca = i
+                            end
+                        end
+                        if roca ~= nil then
+                            if job == "madedero" then
+                                click()
+                                Citizen.Wait(2)
+                            else
+                                DisplayHelpText("Debes ser leñador. Vuelve cuando lo seas para trabajar")
+                            end
+                        end
+                        cooldown = 300
+                    end
+                end
+            end
+
+            if get3DDistance(coords.x,coords.y,coords.z,-552.44,  5348.45,  73.74) > 2000 then
+                if GetCurrentPedWeapon(GetPlayerPed(-1),"WEAPON_HATCHET", true) then
+                    --if job == "madedero" then
+                        RemoveWeaponFromPed(GetPlayerPed(-1),"WEAPON_HATCHET")
+                    --end
+                end
+            end
+
+            if get3DDistance(coords.x,coords.y,coords.z,fundir.x,fundir.y,fundir.z) < 1.5 then
+                if job == "madedero" then
+                    DrawText3D(fundir.x,fundir.y,fundir.z, "Pulsa E para cortar y empaquetar")
+                    if IsControlJustReleased(1,38) and isFunding == false then
+                        AbrirFundir()
+                    end
+                end
+            end
+
+            if get3DDistance( -552.44,  5348.45,  73.74,coords.x,coords.y,coords.z) < 100 then
+                DrawMarker(1,-552.44,  5348.45,  73.74, 0, 0, 0, 0, 0, 0, 1.5001, 1.5001, 1.5001, 1555, 132, 23,255, 0, 0, 0,0)
+            end
+            if get3DDistance(-552.44,  5348.45,  73.74,coords.x,coords.y,coords.z) < 1.5 then
+                if job == "madedero" then
+                    if onservice then
+                        DisplayHelpText("Presiona ~INPUT_CONTEXT~ para dejar tu herramienta y ropa de trabajo")
+                        if IsControlJustReleased(1,38) then
+                            RemoveWeaponFromPed(GetPlayerPed(-1),"WEAPON_HATCHET")
+                            restoreWear()
+                            TriggerEvent('x6stress:workState', false)
+                            onservice = false
+                            Citizen.Wait(500)
+                        end
+                    else
+                        DisplayHelpText("Presiona ~INPUT_CONTEXT~ para coger tu herramienta y ropa de trabajo")
+                        if IsControlJustReleased(1,38) then
+                            GiveWeaponToPed(GetPlayerPed(-1),"WEAPON_HATCHET",1,false,true)
+                            setUniform('job_wear', GetPlayerPed(-1))
+                            TriggerEvent('x6stress:workState', true)
+                            onservice = true
+                            Citizen.Wait(500)
+                        end
+                    end
+                else
+                    DisplayHelpText("Debes ser leñador. Vuelve cuando lo seas para trabajar")
+                end
+            end
+
+            if npcvender then
+                if get3DDistance(1952.27, 3841.63, 32.18,coords.x,coords.y,coords.z) < 20 then
+                    DrawText3Dlittle(1952.27, 3841.63, 32.18, "Te compro tu madera, quieres vender?... ~y~[~w~E~y~]~b~ - Interactuar")
+                    if IsControlJustReleased(1,38) then
+                        AbrirMenu()
+                    end
+                end
+            end
+
+            if job == "madedero" then
+                for k, v in pairs(Config.Zones) do
+                    if get3DDistance(coords.x, coords.y, coords.z, v.coords.x, v.coords.y, v.coords.z) < 100 then
+                        DrawMarker(1, v.coords.x,  v.coords.y,  v.coords.z-0.7, 0, 0, 0, 0, 0, 0, v.size, v.size, v.height, v.color.r,v.color.g,v.color.b, 50, 0, 0, 0,0)
+                    end
+                end
+                for k, v in pairs(Config.Zones) do
+                    if get3DDistance(coords.x, coords.y, coords.z, v.coords.x, v.coords.y, v.coords.z) < v.size then
+                        DisplayHelpText(v.help)
+                        if IsControlJustReleased(1, 38) then
+                            if k == "spawnMenu" then
+                                if ESX.Game.GetVehiclesInArea(v.area, 2)[1] == nil then
+                                    ESX.TriggerServerCallback("leñar:dineroVehiculo", function(cb)
+                                        if cb then
+                                            ESX.Game.SpawnVehicle(Config.Vehicle, v.area, v.heading, function(vehicle)
+                                                TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
+                                            end)
+                                            Wait(500)
+                                        end
+                                    end, "get")
+                                else
+                                    ESX.ShowNotification("El área está ocupada por ~r~otro ~o~vehículo")
+                                end
+                            elseif k == "deleteVehicle" then
+                                local playerPed = GetPlayerPed(-1)
+                                if IsPedInAnyVehicle(playerPed, false) then
+                                    local veh = GetVehiclePedIsIn(playerPed, false)
+                                    local _ve = ESX.Game.GetVehicleProperties(veh)
+                                    if GetDisplayNameFromVehicleModel(_ve.model) == Config.DeleteVeh then
+                                        ESX.TriggerServerCallback("leñar:dineroVehiculo", function(cb)
+                                            ESX.Game.DeleteVehicle(veh)
+                                        end, "return")
+                                    else
+                                        ESX.ShowNotification("~r~No ~s~estas en el vehículo de ~o~trabajo")
+                                    end
+                                else
+                                    ESX.ShowNotification("~r~No ~s~estas en ningún ~o~vehículo")
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            Citizen.Wait(5000)
+        end
+	end
+end)
+
+function click()
+-- Los clicks habrán que equilibrarlos a la dinámica del servidor
+    if roca ~= nil then
+        if rocas[roca].level > JEXLevel then
+            TriggerEvent('exp:NotificateError',"No puedes picar este tipo de roca.")
+            return false
+        end
+        if rocas[roca].vida > 0 then
+           if clicks >= 2 then 
+                clicks = 0
+                rocas[roca].vida = rocas[roca].vida - 1
+                TriggerServerEvent('leñar:doymineral',rocas[roca].data)
+                TriggerServerEvent('leñar:recibodata',rocas)
+                roca = nil
+            else
+                clicks = clicks + 1 
+                roca = nil
+            end
+        end
+    end
+
+end
+ 
+function setblips()       
+    for _, info in pairs(blips) do
+        info.blip = AddBlipForCoord(info.x, info.y, info.z)
+        SetBlipSprite(info.blip, info.id)
+        SetBlipDisplay(info.blip, 4)
+        SetBlipScale(info.blip, 0.9)
+        SetBlipColour(info.blip, info.colour)
+        SetBlipAsShortRange(info.blip, true)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString(info.title)
+        EndTextCommandSetBlipName(info.blip)
+    end
+end
+
+AddEventHandler("ActualiceBlip", function(_job)
+    if _job == "madedero" then
+        setblips()
+    else
+        for _, info in pairs(blips) do
+            RemoveBlip(info.blip)
+        end
+    end
+    job = _job
+end)
