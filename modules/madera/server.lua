@@ -16,7 +16,7 @@ end)
 
 RegisterServerEvent('leñar:recibodata')
 AddEventHandler('leñar:recibodata',function(data)
-	rocas = data
+	troncos = data
 	TriggerClientEvent('leñar:recibodatacliente',-1,data)
 end)
 
@@ -59,12 +59,6 @@ function calculateLevel(skills)
 	return level
 end
 
-RegisterServerEvent('pop_university:setMineLevel')
-AddEventHandler('pop_university:setMineLevel',function(skills)
-	level = calculateLevel(skills)
-	TriggerClientEvent('pop_university:setMineLevel',source,level)
-end)
-
 RegisterServerEvent('leñar:quitomin')
 AddEventHandler('leñar:quitomin',function()
 	local _source = source
@@ -73,61 +67,66 @@ AddEventHandler('leñar:quitomin',function()
 		if xPlayer.inventory[i].name == "tablon_abedul" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				xPlayer.addMoney(count*math.random(20,30))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(20,30))
+				--xPlayer.addMoney(count*math.random(20,30))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
-				TriggerEvent('exp:addExperience',5*count,source)
+				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
 			end
 		elseif xPlayer.inventory[i].name == "tablon_abeto" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				xPlayer.addMoney(count*math.random(15,25))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(15,25))
+				--xPlayer.addMoney(count*math.random(15,25))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
-				TriggerEvent('exp:addExperience',5*count,source)
+				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
 			end
 		elseif xPlayer.inventory[i].name == "tablon_nogal" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				xPlayer.addMoney(count*math.random(15,20))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(15,20))
+				--xPlayer.addMoney(count*math.random(15,20))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
-				TriggerEvent('exp:addExperience',5*count,source)
+				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
 			end
 		elseif xPlayer.inventory[i].name == "tablon_roble" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				xPlayer.addMoney(count*math.random(13,15))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(13,15))
+				--xPlayer.addMoney(count*math.random(13,15))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
-				TriggerEvent('exp:addExperience',3*count,source)
+				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
 			end
 		elseif xPlayer.inventory[i].name == "tablon_pino" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				xPlayer.addMoney(count*math.random(30,32))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(30,32))
+				--xPlayer.addMoney(count*math.random(30,32))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
-				TriggerEvent('exp:addExperience',3*count,source)
+				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
 			end
 		end
 	end
 end)
 
 
-function recarocas()
-	for i=1, #rocas, 1 do
-		if rocas[i].vida < rocas[i].max then
-			if rocas[i].vida + 5 > rocas[i].max then 
-				rocas[i].vida = rocas[i].max
+function recatroncos()
+	for i=1, #troncos, 1 do
+		if troncos[i].vida < troncos[i].max then
+			if troncos[i].vida + 5 > troncos[i].max then 
+				troncos[i].vida = troncos[i].max
 			else
-				rocas[i].vida = rocas[i].vida + 5
+				troncos[i].vida = troncos[i].vida + 5
 			end
 		end
 	end
     --Sincroniar
-	TriggerClientEvent('leñar:recibodatacliente',-1,rocas)
+	TriggerClientEvent('leñar:recibodatacliente',-1,troncos)
 end
 
 function loop()
 Citizen.CreateThread(function()
 	while true do
-		recarocas()
+		recatroncos()
 		Citizen.Wait(30000)
 	Citizen.Wait(0)
 	end
@@ -137,17 +136,17 @@ end
 ESX.RegisterServerCallback("leñar:dineroVehiculo", function(playerId, cb, type)
 	xPlayer = ESX.GetPlayerFromId(playerId)
 	if type == "get" then
-		if xPlayer.getMoney() >= Config.VehicleMoney then
-			xPlayer.removeMoney(Config.VehicleMoney)
-			TriggerClientEvent("esx:showNotification", playerId, "Se te ha cobrado una ~o~fianza ~s~de "..tostring(Config.VehicleMoney).."~g~$ ~s~por el vehículo")
+		if xPlayer.getMoney() >= ConfigMadera.VehicleMoney then
+			xPlayer.removeMoney(ConfigMadera.VehicleMoney)
+			TriggerClientEvent("esx:showNotification", playerId, "Se te ha cobrado una ~o~fianza ~s~de "..tostring(ConfigMadera.VehicleMoney).."~g~$ ~s~por el vehículo")
 			cb(true)
 		else
-			xPlayer.removeMoney(Config.VehicleMoney)
-			TriggerClientEvent("esx:showNotification", playerId, "Te ~r~endeudaste ~s~por "..tostring(Config.VehicleMoney).."~g~$ ~s~de ~o~fianza ~s~para adquirir el vehículo")
+			xPlayer.removeMoney(ConfigMadera.VehicleMoney)
+			TriggerClientEvent("esx:showNotification", playerId, "Te ~r~endeudaste ~s~por "..tostring(ConfigMadera.VehicleMoney).."~g~$ ~s~de ~o~fianza ~s~para adquirir el vehículo")
 			cb(true)
 		end
 	elseif type == "return" then
-		xPlayer.addMoney(Config.VehicleMoney)
+		xPlayer.addMoney(ConfigMadera.VehicleMoney)
 		cb(true)
 	end
 end)

@@ -1,4 +1,4 @@
-rocas = { 
+troncos = { 
 		{x = -557.61, y = 5419.43, z = 63.2, vida = 100, tipo = "Abedul", data = "abedul", max = 100, level = 4},
 		{x = -561.81, y = 5421.32, z = 62.17, vida = 200, tipo = "Pino", data = "pino", max = 200, level = 0},
 		{x = -577.57, y = 5427.06, z = 59.06, vida = 200, tipo = "Pino", data = "pino", max = 200, level = 0},
@@ -13,8 +13,9 @@ rocas = {
 		{x = -563.14, y = 5457.28, z = 63.15, vida = 200, tipo = "Pino", data = "pino", max = 200, level = 0},
 }
 
-Config = {}
-Config.Uniforms = {
+ConfigMadera = {}
+
+ConfigMadera.Uniforms = {
 	job_wear = {
 		male = {
 			['tshirt_1'] = 15, ['tshirt_2'] = 0,
@@ -41,11 +42,11 @@ Config.Uniforms = {
 	},
 }
 
-Config.Vehicle = "TipTruck"
-Config.DeleteVeh = "TIPTRUCK"
-Config.VehicleMoney = 1500
+ConfigMadera.Vehicle = "TipTruck"
+ConfigMadera.DeleteVeh = "TIPTRUCK"
+ConfigMadera.VehicleMoney = 1500
 
-Config.Zones = {
+ConfigMadera.Zones = {
 	deleteVehicle = {
 		coords = vector3(1205.41, -1282.41, 34.70),
 		help = "Pulsa ~INPUT_CONTEXT~ para devolver el vehiculo",

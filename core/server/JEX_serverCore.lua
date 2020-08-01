@@ -3,6 +3,8 @@ ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 -- Start of JEX Integrations
+
+-- Start of XP system
 AddEventHandler('JEX:addXP', function(identifier, work, xp)
     local JEXPlayer = CreateJEXPlayer(identifier)
     JEXPlayer.addXP(work, xp)
@@ -18,16 +20,16 @@ AddEventHandler('JEX:LevelUpgrade', function(identifier, level, work)
       })    
 end)
 
-RegisterNetEvent('JEX:getPayment', function(work, payment, paymentType)
+AddEventHandler('JEX:getPayment', function(identifier, work, payment, paymentType)
     local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
     local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
 
     if paymentType == 'bank' then
-        xPlayer.addAccountMoney('bank', ESX.Math.Round(payment*JEXPlayer(work)))
+        xPlayer.addAccountMoney('bank', ESX.Math.Round(payment*JEXPlayer.getXPmultiplier(work)))
     elseif paymentType == 'black' then
-        xPlayer.addAccountMoney('black', ESX.Math.Round(payment*JEXPlayer(work)))
+        xPlayer.addAccountMoney('black', ESX.Math.Round(payment*JEXPlayer.getXPmultiplier(work)))
     else
-        xPlayer.addMoney(ESX.Math.Round(payment*JEXPlayer(work)))
+        xPlayer.addMoney(ESX.Math.Round(payment*JEXPlayer.getXPmultiplier(work)))
     end
 end)
 
@@ -102,3 +104,4 @@ RegisterCommand('addXP', function(source, args, rawCommand)
     local xPlayer = ESX.GetPlayerFromId(source)
     TriggerEvent('JEX:addXP', xPlayer.identifier, 'minero', 50)
 end)
+-- End of XP system
