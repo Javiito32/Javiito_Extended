@@ -412,6 +412,7 @@ function clickMadera()
     if tronco ~= nil then
         if troncos[tronco].level > JEXMaderaLevel then
             ESX.ShowNotification("~r~No ~w~puedes talar este tipo de arbol con tu nivel actual")
+            tronco = nil
             return false
         end
         if troncos[tronco].vida > 0 then

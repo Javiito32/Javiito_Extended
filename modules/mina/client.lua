@@ -180,6 +180,7 @@ Citizen.CreateThread(function()
                         for i=1, #rocas, 1 do
                             if GetDistanceBetweenCoords(coords.x,coords.y,coords.z,rocas[i].x,rocas[i].y,rocas[i].z) < 1.8 and rocas[i].vida > 0 then
                                 roca = i
+                                norock = false
                             end
                         end
                         if roca ~= nil then
@@ -293,6 +294,7 @@ function clickMina()
     if roca ~= nil then
         if rocas[roca].level > JEXMinaLevel then
             ESX.ShowNotification("~r~No ~w~puedes picar este tipo de roca con tu nivel actual")
+            roca = nil
             return false
         end
         if rocas[roca].vida > 0 then

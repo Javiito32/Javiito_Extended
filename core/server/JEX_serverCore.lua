@@ -105,3 +105,9 @@ RegisterCommand('addXP', function(source, args, rawCommand)
     TriggerEvent('JEX:addXP', xPlayer.identifier, 'minero', 50)
 end)
 -- End of XP system
+
+-- Start of Business XP System
+
+
+
+-- End of XP system
