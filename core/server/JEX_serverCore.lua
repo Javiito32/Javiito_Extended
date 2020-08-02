@@ -12,12 +12,16 @@ end)
 
 AddEventHandler('JEX:LevelUpgrade', function(identifier, level, work)
     local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
+    xPlayer.setJob(work, tonumber(level)-1)
     TriggerClientEvent('JEX:setLevel', xPlayer.source, work, tonumber(level))
     TriggerClientEvent('chat:addMessage', xPlayer.source, {
         color = { 255, 0, 0},
         multiline = true,
-        args = {"Subida de nivel", "Has subido al nivel "..level.. " de " .. getLabelFromWork(work)}
-      })    
+        args = {"Subida de nivel | ", "Has subido al nivel "..level.. " de " .. getLabelFromWork(work)}
+    }) 
+    if level >= #WorkLevels[work] then
+        addBusiness(identifier, work, xPlayer.source)
+    end   
 end)
 
 AddEventHandler('JEX:getPayment', function(identifier, work, payment, paymentType)
@@ -106,8 +110,27 @@ RegisterCommand('addXP', function(source, args, rawCommand)
 end)
 -- End of XP system
 
+-- Player Connection Exec
+
+AddEventHandler('esx:playerLoaded', function(source)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local job = xPlayer.getJob()
+    if job.grade >= WorkLevels[job.name]-1 then
+        TriggerClientEvent('JEX:businessRemember', source, job.name)
+    end
+end)
+
+-- End of Player Connection Exec
+
 -- Start of Business XP System
 
-
+function addBusiness(steam64id, job, id)
+    MySQL.Async.execute('INSERT INTO negocios (identifier, job) VALUES (@steam64_hex, @_job)',
+    { 
+        ['@_job'] = job,
+        ['@steam64_hex'] = steam64id
+    })
+    TriggerClientEvent('JEX:BusinessUnlock', job)
+end
 
 -- End of XP system
