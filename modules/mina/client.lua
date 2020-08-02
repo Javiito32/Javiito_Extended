@@ -20,11 +20,6 @@ local blips = {
     {title="Vehículo de trabajo", colour=4, id=653, x = 1597.83, y = -1727.66, z = 87.48}
 }
 
-RegisterNetEvent('pop_university:setMineLevel')
-AddEventHandler('pop_university:setMineLevel',function(totalLevel)
-    level = totalLevel
-end)
-
 RegisterNetEvent('minar:recibodatacliente')
 AddEventHandler('minar:recibodatacliente',function(data)
     rocas = data

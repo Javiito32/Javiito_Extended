@@ -276,8 +276,9 @@ Citizen.CreateThread(function()
             end
             Citizen.Wait(0)
             local coords = GetEntityCoords(GetPlayerPed(-1))
+            local dist = GetDistanceBetweenCoords(coords.x,coords.y,coords.z,troncos[i].x,troncos[i].y,troncos[i].z)
             for i=1, #troncos, 1 do
-                if GetDistanceBetweenCoords(coords.x,coords.y,coords.z,troncos[i].x,troncos[i].y,troncos[i].z) < 75 then
+                if dist < 75 then
                     if troncos[i].vida >= 25 then
                         DrawText3D(troncos[i].x,troncos[i].y,troncos[i].z, troncos[i].tipo.." ~g~"..troncos[i].vida.."/"..troncos[i].max)
                     elseif troncos[i].vida >= 12 then
@@ -294,7 +295,7 @@ Citizen.CreateThread(function()
                 if IsControlJustReleased(1,  24) then --click izq
                     if cooldown == 0 then
                         for i=1, #troncos, 1 do
-                            if GetDistanceBetweenCoords(coords.x,coords.y,coords.z,troncos[i].x,troncos[i].y,troncos[i].z) < 1.8 and troncos[i].vida > 0 then
+                            if dist < 1.8 and troncos[i].vida > 0 then
                                 tronco = i
                             end
                         end

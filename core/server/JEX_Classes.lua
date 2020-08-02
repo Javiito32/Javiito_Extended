@@ -53,7 +53,12 @@ function CreateJEXPlayer(identifier)
         if grade then
             return WorkMultiplier[work][grade]
         else
-            return WorkMultiplier[work][self.getXPLevel(work)]
+            local level = self.getXPLevel(work)
+            if level == 0 then
+                return 1.0
+            else
+                return WorkMultiplier[work][level]
+            end
         end
     end
 

@@ -79,12 +79,6 @@ function calculateLevel(skills)
 	return level
 end
 
-RegisterServerEvent('pop_university:setMineLevel')
-AddEventHandler('pop_university:setMineLevel',function(skills)
-	level = calculateLevel(skills)
-	TriggerClientEvent('pop_university:setMineLevel',source,level)
-end)
-
 RegisterServerEvent('minar:quitomin')
 AddEventHandler('minar:quitomin',function()
 	local _source = source
