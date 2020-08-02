@@ -2,7 +2,8 @@ Config = {}
 
 Config.Business = {
     minero = {
-        pos = vector3(),
+        pos = vector3(100, 100, 20),
+        size = 1,
         stock_price = {
             tablon_roble = 2,
             pino = 1

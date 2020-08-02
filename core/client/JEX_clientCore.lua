@@ -21,6 +21,8 @@ AddEventHandler('esx:setJob', function(job)
 end)
 
 local blip = {}
+local activebusiness = nil
+local awaitingbusiness = nil
 
 function setblip(name, label, coords, type, colour)       
 	blip[name] = AddBlipForCoord(coords.x, coords.y, coords.z)
@@ -39,7 +41,7 @@ end
 function rememberBusiness(job)
 	local requerimentsString = ""
     for i=1, #Config.Business[job].initial_pay, 1 do
-        if i = #Config.Business[job].initial_pay then
+        if i == #Config.Business[job].initial_pay then
             requerimentsString = requerimentsString:sub(1, -2)
             requerimentsString = requerimentsString.." y "..tostring(Config.Business[job].initial_pay[i].value).." de "..Config.Business[job].initial_pay[i].item
         else
@@ -53,6 +55,8 @@ function rememberBusiness(job)
 	})
 	setblip("businessTask", "Entrega de Mercancia", Config.Business[job].pos, 133, 5)
 	SetNewWaypoint(Config.Business[job].pos.x, Config.Business[job].pos.y)
+
+	awaitingbusiness = job
 end
 
 RegisterNetEvent('JEX:businessRemember')
@@ -71,4 +75,29 @@ AddEventHandler('JEX:BusinessUnlock', function(job)
     --    requerimentsString = requerimentsString.." "..tostring(v).." de "..k..","
 	--end
 	rememberBusiness(job)
+end)
+
+
+-- Main Thread
+Citizen.CreateThread(function()
+	while true do
+		local plyPos = GetEntityCoords(GetPlayerPed(-1))
+		if activebusiness ~= nil then
+		
+		end
+
+		if awaitingbusiness ~= nil then
+			local dist = GetDistanceBetweenCoords(plyPos, Config.Business[awaitingbusiness].pos, true)
+			if dist < 5 then
+				DrawMarker(1, Config.Business[awaitingbusiness].pos.x,  Config.Business[awaitingbusiness].pos.y,  Config.Business[awaitingbusiness].pos.z, 0, 0, 0, 0, 0, 0, Config.Business[awaitingbusiness].size, Config.Business[awaitingbusiness].size, Config.Business[awaitingbusiness].size, 1555, 132, 23,255, 0, 0, 0,0)
+				if dist < Config.Business[awaitingbusiness].size then
+					ESX.ShowHelpnotification("Pulsa ~INPUT_CONTEXT~ para entregar la mercancía")
+					if IsControlJustReleased(0, 38) then
+						TriggerServerEvent('JEX:buyBusiness', awaitingbusiness)
+					end
+				end
+			end
+		end
+		Citizen.Wait(10)
+	end
 end)

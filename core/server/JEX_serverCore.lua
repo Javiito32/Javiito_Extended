@@ -115,7 +115,8 @@ end)
 AddEventHandler('esx:playerLoaded', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
     local job = xPlayer.getJob()
-    if job.grade >= WorkLevels[job.name]-1 then
+    
+    if job.grade >= #WorkLevels[job.name]-1 then
         TriggerClientEvent('JEX:businessRemember', source, job.name)
     end
 end)
@@ -130,7 +131,54 @@ function addBusiness(steam64id, job, id)
         ['@_job'] = job,
         ['@steam64_hex'] = steam64id
     })
-    TriggerClientEvent('JEX:BusinessUnlock', job)
+    TriggerClientEvent('JEX:BusinessUnlock', id, job)
 end
+
+RegisterNetEvent('JEX:buyBusiness')
+AddEventHandler('JEX:buyBusiness', function(job)
+    local isable = true
+    local xPlayer = ESX.GetPlayerFromId(source)
+    for i = 1, #Config.Business[job].initial_pay, 1 do
+        local xItem = xPlayer.getInventoryItem(Config.Business[job].initial_pay[i].item)
+        if xItem.count < Config.Business[job].initial_pay[i].value then
+            TriggerClientEvent('esx:showNotification', source, "Te faltan "..Config.Business[job].initial_pay[i].value-xItem.count.." de "..xItem.label)
+            isable = false
+        end
+    end
+    if isable then
+        for i = 1, #Config.Business[job].initial_pay, 1 do
+            xPlayer.removeInventoryItem(Config.Business[job].initial_pay[i].item, Config.Business[job].initial_pay[i].value)
+        end
+        TriggerClientEvent('esx:showNotification', source, "Has ~g~desbloqueado~w~ el negocio correctamente, como cortesía te hemos regalado 10 de stock")
+    end
+    MySQL.Async.execute('UPDATE negocios SET stock = 10 WHERE identifier = @steam64_hex AND job = @_job',
+    { 
+        ['@_job'] = job,
+        ['@steam64_hex'] = xPlayer.identifier
+    })
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(3600000)
+        MySQL.Async.fetchAll('SELECT u.job, n.* FROM users AS u, negocios AS n WHERE u.identifier = n.identifier AND u.job = n.job', {}, function(results)
+            for i=1, #results, 1 do
+                local xPlayer = ESX.GetPlayerFromIdentifier(results[i].identifier)
+                if results[i].stock > 0 then
+                    if xPlayer ~= nil then
+                        TriggerClientEvent('esx:showNotification', xPlayer.source, "Has recibido la ~g~paga~w~ de tu negocio de "..getLabelFromWork(results[i].job))
+                        xPlayer.addAccountMoney('bank', Config.Business[results[i].job].reward)
+                    else
+                        MySQL.Async.execute('UPDATE `users` SET `bank` = `bank` + @bank WHERE `identifier` = @identifier',{['@bank'] = tonumber(Config.Business[results[i].job].reward), ['@identifier'] = results[i].identifier})
+                    end
+                else
+                    if xPlayer ~= nil then
+                        TriggerClientEvent('esx:showNotification', xPlayer.source, "Tu negocio de "..getLabelFromWork(results[i].job).." se ha quedado ~r~sin stock")
+                    end
+                end
+            end
+        end)
+    end
+end)
 
 -- End of XP system
