@@ -18,7 +18,8 @@ AddEventHandler('JEX:LevelUpgrade', function(identifier, level, work)
         color = { 255, 0, 0},
         multiline = true,
         args = {"Subida de nivel | ", "Has subido al nivel "..level.. " de " .. getLabelFromWork(work)}
-    }) 
+    })
+    TriggerClientEvent('InteractSound_CL:PlayOnOne', xPlayer.source, 'levelup',  0.8)
     if level >= #WorkLevels[work] then
         addBusiness(identifier, work, xPlayer.source)
     end   
@@ -68,6 +69,9 @@ AddEventHandler('JEX:CheckPlayer', function()
             ['@steam64_hex'] = steam64id
         })
 
+        for k, v in pairs(xplevels) do
+            TriggerClientEvent('JEX:setLevel', _source, k, tonumber(v))
+        end
     else
         local changes = false
         local xp = json.decode(data[1].xp)
@@ -114,10 +118,22 @@ end)
 
 AddEventHandler('esx:playerLoaded', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
+    local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
     local job = xPlayer.getJob()
-    
-    if job.grade >= #WorkLevels[job.name]-1 then
-        TriggerClientEvent('JEX:businessRemember', source, job.name)
+    if WorkLevels[job.name] then
+        if job.grade >= #WorkLevels[job.name]-1 or JEXPlayer.getXPLevel() >= ##WorkLevels[job.name] then
+            MySQL.Async.fetchAll('SELECT u.job, n.* FROM users AS u, negocios AS n WHERE u.identifier = n.identifier AND u.job = n.job AND n.identifier = @steam64_hex', {
+                ['@steam64_hex'] = xPlayer.identifier
+            }, function(results)
+                if #results > 0 then
+                    if results[1].stock == nil then
+                        TriggerClientEvent('JEX:businessRemember', source, results[1].job)
+                    else
+                        TriggerClientEvent('JEX:businessIsOwned', source, results[1].job)
+                    end
+                end
+            end)
+        end
     end
 end)
 
@@ -149,7 +165,8 @@ AddEventHandler('JEX:buyBusiness', function(job)
         for i = 1, #Config.Business[job].initial_pay, 1 do
             xPlayer.removeInventoryItem(Config.Business[job].initial_pay[i].item, Config.Business[job].initial_pay[i].value)
         end
-        TriggerClientEvent('esx:showNotification', source, "Has ~g~desbloqueado~w~ el negocio correctamente, como cortesía te hemos regalado 10 de stock")
+        TriggerClientEvent('JEX:BusinessBought', source, job)
+        --TriggerClientEvent('esx:showNotification', source, "Has ~g~desbloqueado~w~ el negocio correctamente, como cortesía te hemos regalado 10 de stock")
     end
     MySQL.Async.execute('UPDATE negocios SET stock = 10 WHERE identifier = @steam64_hex AND job = @_job',
     { 
@@ -158,10 +175,47 @@ AddEventHandler('JEX:buyBusiness', function(job)
     })
 end)
 
+RegisterNetEvent('JEX:buyBusinessStock')
+AddEventHandler('JEX:buyBusinessStock', function(job, quantity)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local isable = true
+    for i = 1, #Config.Business[job].stock_price, 1 do
+        local xItem = xPlayer.getInventoryItem(Config.Business[job].stock_price[i].item)
+        local mustHave = Config.Business[job].stock_price[i].value*quantity
+        if xItem.count < mustHave then
+            TriggerClientEvent('esx:showNotification', source, "Te faltan "..mustHave-xItem.count.." de "..xItem.label)
+            isable = false
+        end
+    end
+    if isable then
+        for i = 1, #Config.Business[job].stock_price, 1 do
+            local toBeDeleted = Config.Business[job].stock_price[i].value*quantity
+            xPlayer.removeInventoryItem(Config.Business[job].stock_price[i].item, toBeDeleted)
+        end
+        TriggerClientEvent('esx:showNotification', source, "Has obtenido ~g~"..quantity.." de stock")
+        MySQL.Async.execute('UPDATE negocios SET stock = stock + @_stock WHERE identifier = @steam64_hex AND job = @_job',
+        { 
+            ['@_job'] = job,
+            ['@_stock'] = quantity,
+            ['@steam64_hex'] = xPlayer.identifier
+        })
+    end
+end)
+
+ESX.RegisterServerCallback("JEX:getBusinessStock", function(source, cb, job)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    MySQL.Async.fetchAll('SELECT stock FROM negocios WHERE identifier = @steam64_hex AND job = @_job', {
+        ['@steam64_hex'] = xPlayer.identifier,
+        ['@_job'] = job
+    }, function(results)
+        cb(results[1].stock)
+    end)
+end)
+
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(3600000)
-        MySQL.Async.fetchAll('SELECT u.job, n.* FROM users AS u, negocios AS n WHERE u.identifier = n.identifier AND u.job = n.job', {}, function(results)
+        MySQL.Async.fetchAll('SELECT u.job, n.* FROM users AS u, negocios AS n WHERE u.identifier = n.identifier AND u.job = n.job AND stock ~= NULL', {}, function(results)
             for i=1, #results, 1 do
                 local xPlayer = ESX.GetPlayerFromIdentifier(results[i].identifier)
                 if results[i].stock > 0 then
