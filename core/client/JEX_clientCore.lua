@@ -96,7 +96,7 @@ function openBusinessMenu(job)
 	ESX.TriggerServerCallback("JEX:getBusinessStock", function(stock)
 		local _elements = {
 			{label = 'Comprar Stock', label_real = 'buystock', value = 1, type = 'slider', min = 1, max = 100},
-			{label = "Stock: "..tostring(stock), value = ''}
+			{label = "Stock: "..tostring(stock), value = ''},
 			{label = "-- Precio del Stock --"},
 			
 		}

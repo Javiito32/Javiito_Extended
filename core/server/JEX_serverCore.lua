@@ -78,14 +78,7 @@ AddEventHandler('JEX:CheckPlayer', function()
         local xplevels = json.decode(data[1].levelsxp)
 
         for k, v in pairs(WorkLevels) do
-            local coincide = false
-            for a, b in pairs(xp) do
-                if a == k then
-                    coincide = true
-                    break
-                end
-            end
-            if not coincide then
+            if not xp[k] then
                 xp[k] = 0
                 xplevels[k] = 0
                 changes = true
@@ -93,7 +86,6 @@ AddEventHandler('JEX:CheckPlayer', function()
         end
 
         if changes then
-            print("Se ejecuta eso")
             MySQL.Async.execute('UPDATE jex_users SET xp = @_xp, levelsxp = @_levelsxp WHERE identifier = @steam64_hex',
             { 
                 ['@_xp'] = json.encode(xp),
@@ -121,7 +113,7 @@ AddEventHandler('esx:playerLoaded', function(source)
     local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
     local job = xPlayer.getJob()
     if WorkLevels[job.name] then
-        if job.grade >= #WorkLevels[job.name]-1 or JEXPlayer.getXPLevel() >= ##WorkLevels[job.name] then
+        if job.grade >= #WorkLevels[job.name]-1 then
             MySQL.Async.fetchAll('SELECT u.job, n.* FROM users AS u, negocios AS n WHERE u.identifier = n.identifier AND u.job = n.job AND n.identifier = @steam64_hex', {
                 ['@steam64_hex'] = xPlayer.identifier
             }, function(results)
@@ -215,7 +207,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(3600000)
-        MySQL.Async.fetchAll('SELECT u.job, n.* FROM users AS u, negocios AS n WHERE u.identifier = n.identifier AND u.job = n.job AND stock ~= NULL', {}, function(results)
+        MySQL.Async.fetchAll('SELECT u.job, n.* FROM users AS u, negocios AS n WHERE u.identifier = n.identifier AND u.job = n.job AND stock <> NULL', {}, function(results)
             for i=1, #results, 1 do
                 local xPlayer = ESX.GetPlayerFromIdentifier(results[i].identifier)
                 if results[i].stock > 0 then

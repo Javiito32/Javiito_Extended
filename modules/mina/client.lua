@@ -4,7 +4,7 @@ local npcvender = true
 local level = 3
 local fundir = {x = 1110.03, y = -2008.15, z = 31.06}
 
-local JEXMinaLevel = nil
+local JEXMinaLevel = 0
 
 RegisterNetEvent('JEX:setLevel')
 AddEventHandler('JEX:setLevel', function(work, level)
@@ -249,7 +249,8 @@ Citizen.CreateThread(function()
                                 if ESX.Game.GetVehiclesInArea(v.area, 3)[1] == nil then
                                     ESX.TriggerServerCallback("minar:dineroVehiculo", function(cb)
                                         if cb then
-                                            ESX.Game.SpawnVehicle(ConfigMina.Vehicle, v.area, v.heading, function(vehicle)
+                                            local spawnCoords = ESX.requestJaviitoSpawn(10.0, 5.0, 10, 39, 6.0)
+                                            ESX.Game.SpawnVehicle(ConfigMadera.Vehicle, {x = spawnCoords.x, y = spawnCoords.y, z = spawnCoords.z}, spawnCoords.h, function(vehicle)
                                                 TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
                                             end)
                                             Wait(5000)

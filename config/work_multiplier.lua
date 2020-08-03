@@ -4,5 +4,8 @@ WorkMultiplier = {
     },
     ['madedero'] = {
         1.5, 2.0, 3.0
+    },
+    ['trucker'] = {
+        1.5, 2.0, 3.0
     }
 }

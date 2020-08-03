@@ -4,14 +4,14 @@ local tronco = nil
 local npcvender = true --false si no quieres el npc que te lo cambia por dinero
 local level = 4
 local fundir = {x = -584.23, y = 5285.78, z = 70.26}
-local job
+local Maderajob
 local blips = {
     {title="Aserradero", colour=1, id=238, x = -552.44, y = 5348.45, z = 74.74-1},
     {title="Cortar/empaquetar madera", colour=2, id=238, x = -584.23, y = 5285.78, z = 70.26},
     {title="Venta de madera", colour=3, id=238, x = 1952.27,y = 3841.63,z = 32.18},
     {title="Vehículo de trabajo", colour=4, id=238, x = 1200.33, y = -1274.0, z = 34.70}
 }
-local JEXMaderaLevel = nil
+local JEXMaderaLevel = 0
 
 RegisterNetEvent('JEX:setLevel')
 AddEventHandler('JEX:setLevel', function(work, level)
@@ -202,9 +202,9 @@ local cooldown = 0
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(10)
-        if job ~= "madedero" then
+        if Maderajob ~= "madedero" then
             Citizen.Wait(5000)
-        elseif job == "madedero" and cooldown > 0 then
+        elseif Maderajob == "madedero" and cooldown > 0 then
            Citizen.Wait(100)
            cooldown = cooldown - 100
         end
@@ -269,7 +269,7 @@ end
 local onservice = false
 Citizen.CreateThread(function()
     while true do
-        if job == 'madedero' then
+        if Maderajob == 'madedero' then
             if IsPedDead then
                 clicks = 0
                 tronco = nil
@@ -300,12 +300,8 @@ Citizen.CreateThread(function()
                             end
                         end
                         if tronco ~= nil then
-                            if job == "madedero" then
-                                clickMadera()
-                                Citizen.Wait(2)
-                            else
-                                DisplayHelpText("Debes ser leñador. Vuelve cuando lo seas para trabajar")
-                            end
+                            clickMadera()
+                            Citizen.Wait(2)
                         end
                         cooldown = 300
                     end
@@ -314,7 +310,7 @@ Citizen.CreateThread(function()
 
             if get3DDistance(coords.x,coords.y,coords.z,-552.44,  5348.45,  73.74) > 2000 then
                 if GetCurrentPedWeapon(GetPlayerPed(-1),"WEAPON_HATCHET", true) then
-                    --if job == "madedero" then
+                    --if Maderajob == "madedero" then
                         RemoveWeaponFromPed(GetPlayerPed(-1),"WEAPON_HATCHET")
                     --end
                 end
@@ -374,7 +370,8 @@ Citizen.CreateThread(function()
                             if ESX.Game.GetVehiclesInArea(v.area, 2)[1] == nil then
                                 ESX.TriggerServerCallback("leñar:dineroVehiculo", function(cb)
                                     if cb then
-                                        ESX.Game.SpawnVehicle(ConfigMadera.Vehicle, v.area, v.heading, function(vehicle)
+                                        local spawnCoords = ESX.requestJaviitoSpawn(10.0, 5.0, 10, 39, 6.0)
+                                        ESX.Game.SpawnVehicle(ConfigMadera.Vehicle, {x = spawnCoords.x, y = spawnCoords.y, z = spawnCoords.z}, spawnCoords.h, function(vehicle)
                                             TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
                                         end)
                                         Wait(500)
