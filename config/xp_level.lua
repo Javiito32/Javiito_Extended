@@ -7,5 +7,8 @@ WorkLevels = {
     },
     ['trucker'] = {
         50, 100, 150
+    },
+    ['fisherman'] = {
+        50, 100, 150
     }
 }

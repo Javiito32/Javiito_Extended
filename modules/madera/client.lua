@@ -214,7 +214,7 @@ end)
 ---------------------------------
 --------Ropa de trabajo----------
 ---------------------------------
-function setUniform(job, playerPed)
+function setUniformMadera(job, playerPed)
     TriggerEvent('skinchanger:getSkin', function(skin)
   
       if skin.sex == 0 then
@@ -340,7 +340,7 @@ Citizen.CreateThread(function()
                     DisplayHelpText("Presiona ~INPUT_CONTEXT~ para coger tu herramienta y ropa de trabajo")
                     if IsControlJustReleased(1,38) then
                         GiveWeaponToPed(GetPlayerPed(-1),"WEAPON_HATCHET",1,false,true)
-                        setUniform('job_wear', GetPlayerPed(-1))
+                        setUniformMadera('job_wear', GetPlayerPed(-1))
                         TriggerEvent('x6stress:workState', true)
                         onservice = true
                         Citizen.Wait(500)

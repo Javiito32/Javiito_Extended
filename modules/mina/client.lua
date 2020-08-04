@@ -145,6 +145,29 @@ Citizen.CreateThread(function()
     end
 end)
 
+---------------------------------
+--------Ropa de trabajo----------
+---------------------------------
+function setUniformMina(job, playerPed)
+    TriggerEvent('skinchanger:getSkin', function(skin)
+  
+      if skin.sex == 0 then
+        if ConfigMadera.Uniforms[job].male ~= nil then
+          TriggerEvent('skinchanger:loadClothes', skin, ConfigMadera.Uniforms[job].male)
+        else
+          ESX.ShowNotification(_U('no_outfit'))
+        end
+      else
+        if ConfigMadera.Uniforms[job].female ~= nil then
+          TriggerEvent('skinchanger:loadClothes', skin, ConfigMadera.Uniforms[job].female)
+        else
+          ESX.ShowNotification(_U('no_outfit'))
+        end
+      end
+  
+    end)
+end
+
 local onservice = false
 Citizen.CreateThread(function()
     while true do
@@ -219,7 +242,7 @@ Citizen.CreateThread(function()
                         DisplayHelpText("Presiona ~INPUT_CONTEXT~ para coger tu herramienta y ropa de trabajo")
                         if IsControlJustReleased(1,38) then
                             GiveWeaponToPed(PlayerPedId(), "WEAPON_BATTLEAXE",1,false,true)
-                            setUniform('job_wear', PlayerPedId())
+                            setUniformMina('job_wear', PlayerPedId())
                             TriggerEvent('x6stress:workState', true)
                             onservice = true
                             Citizen.Wait(500)

@@ -14,6 +14,8 @@ client_scripts {
     'modules/madera/client.lua',
     'modules/mina/config.lua',
     'modules/mina/client.lua',
+    'modules/fishing/config.lua',
+    'modules/fishing/client.lua',
 }
 
 server_scripts {
@@ -31,4 +33,6 @@ server_scripts {
     'modules/madera/server.lua',
     'modules/mina/config.lua',
     'modules/mina/server.lua',
+    'modules/fishing/config.lua',
+    'modules/fishing/server.lua',
 }
