@@ -2,6 +2,7 @@ RegisterNetEvent('JEX:addFishes')
 AddEventHandler('JEX:addFishes', function(level)
     local xPlayer = ESX.GetPlayerFromId(source)
     local totalFishes = {}
+    TriggerEvent('JEX:addXP', xPlayer.identifier, "fisherman", math.random(2,4))
     for k, v in pairs(ConfigFishing.Levels) do
         if level >= v then
             table.insert(totalFishes, k)
@@ -13,20 +14,20 @@ AddEventHandler('JEX:addFishes', function(level)
         end
     elseif #totalFishes <= 4 then
         for _, v in pairs(totalFishes) do
-            if math.random(1, 10) <= 8 then
+            if math.random(1, 10) <= 5 then
                 xPlayer.addInventoryItem(v, math.random(4, 6))
             end
         end
     elseif #totalFishes <= 6 then
         for _, v in pairs(totalFishes) do
-            if math.random(1, 10) <= 7 then
+            if math.random(1, 10) <= 4 then
                 xPlayer.addInventoryItem(v, math.random(4, 6))
             end
         end
     elseif #totalFishes <= 10 then
         for _, v in pairs(totalFishes) do
-            if math.random(1, 10) <= 6 then
-                xPlayer.addInventoryItem(v, math.random(3, 6))
+            if math.random(1, 10) <= 2 then
+                xPlayer.addInventoryItem(v, math.random(4, 6))
             end
         end
     end

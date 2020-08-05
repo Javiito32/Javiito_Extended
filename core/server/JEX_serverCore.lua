@@ -12,7 +12,7 @@ end)
 
 AddEventHandler('JEX:LevelUpgrade', function(identifier, level, work)
     local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
-    xPlayer.setJob(work, tonumber(level)-1)
+    xPlayer.setJob(work, tonumber(level))
     TriggerClientEvent('JEX:setLevel', xPlayer.source, work, tonumber(level))
     TriggerClientEvent('chat:addMessage', xPlayer.source, {
         color = { 255, 0, 0},
@@ -202,6 +202,20 @@ ESX.RegisterServerCallback("JEX:getBusinessStock", function(source, cb, job)
     }, function(results)
         cb(results[1].stock)
     end)
+end)
+
+RegisterNetEvent("JEX:checkBusiness")
+AddEventHandler("JEX:checkBusiness", function(job)
+    local _source = source
+    local xPlayer = ESX.GetPlayerFromId(_source)
+    local data = MySQL.Sync.fetchAll('SELECT job, stock FROM negocios WHERE identifier = @steam64_hex AND job = @_job', {
+        ['@steam64_hex'] = xPlayer.identifier,
+        ['@_job'] = job
+    })
+    if #data > 0 then
+        local stock = data[1].stock
+        TriggerClientEvent("JEX:BusinessChecked", _source, true, stock)
+    end
 end)
 
 Citizen.CreateThread(function()

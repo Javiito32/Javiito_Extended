@@ -1,10 +1,44 @@
 local workingInProgress = false
 local JEXFishingLevel = 0
 local FishingJob
+local VehicleBlip
+local SellBlip
+
+function setBlips()
+    local VehicleBlip = AddBlipForCoord(ConfigFishing.Zones.VehicleSpawner.Pos.x, ConfigFishing.Zones.VehicleSpawner.Pos.y, ConfigFishing.Zones.VehicleSpawner.Pos.z)
+    SetBlipSprite  (VehicleBlip, 68)
+    SetBlipDisplay (VehicleBlip, 4)
+    SetBlipScale   (VehicleBlip, 1.2)
+    SetBlipCategory(VehicleBlip, 3)
+    SetBlipColour  (VehicleBlip, 1)
+    SetBlipAsShortRange(VehicleBlip, true)
+
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Vehículo para la pesca")
+    EndTextCommandSetBlipName(VehicleBlip)
+
+    local SellBlip = AddBlipForCoord(ConfigFishing.Zones.SellPoint.Pos.x, ConfigFishing.Zones.SellPoint.Pos.y, ConfigFishing.Zones.SellPoint.Pos.z)
+    SetBlipSprite  (SellBlip, 68)
+    SetBlipDisplay (SellBlip, 4)
+    SetBlipScale   (SellBlip, 1.2)
+    SetBlipCategory(SellBlip, 3)
+    SetBlipColour  (SellBlip, 2)
+    SetBlipAsShortRange(SellBlip, true)
+
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("Venta de Pescados")
+    EndTextCommandSetBlipName(SellBlip)
+end
 
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(job)
-	FishingJob = job.name
+    FishingJob = job.name
+    if job.name == 'fisherman' then
+        setBlips()
+    else
+        DeleteBlip(VehicleBlip)
+        DeleteBlip(SellBlip)
+    end
 end)
 
 local VehicleOfTheJob
@@ -110,7 +144,7 @@ function FishSessionStart()
     else
         ESX.ShowNotification("Vuelve al puerto a devolver el barco para vender tu pescado")
         TotalFishedPoints = 0
-        SetNewWaypoint(ConfigFishing.Zones[VehicleCollect].x, ConfigFishing.Zones[VehicleCollect].y)
+        SetNewWaypoint(ConfigFishing.Zones.VehicleCollect.Pos.x, ConfigFishing.Zones.VehicleCollect.Pos.y)
     end
 end
 
@@ -129,6 +163,7 @@ function ControlAction(action)
         disableControl = false
         FishSessionStart()
     elseif action == 'SellPoint' then
+        disableControl = false
         TriggerEvent("mythic_progbar:client:progress", {
             name = "RobbingTheBank",
             duration = ConfigFishing.TimeToSell, -- 1000ms * x seconds
@@ -150,13 +185,14 @@ function ControlAction(action)
             TriggerServerEvent('JEX:sellFishes', JEXFishingLevel)
         end)
     elseif action == 'VehicleCollect' then
+        disableControl = false
         local PlayerPed = PlayerPedId()
         local vehicle = GetVehiclePedIsIn(PlayerPed, false)
-        if vehicle == VehicleOfTheJob then
-            DeleteEntity(vehicle)
-            vehicle = nil
+        if vehicle == VehicleOfTheJob then 
             DoScreenFadeOut(500)
             Wait(1000)
+            DeleteEntity(vehicle)
+            vehicle = nil
             restoreWear()
             SetEntityCoords(PlayerPed, ConfigFishing.Zones[action].tp.x, ConfigFishing.Zones[action].tp.y, ConfigFishing.Zones[action].tp.z)
             DoScreenFadeIn(500)

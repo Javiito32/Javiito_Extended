@@ -15,14 +15,28 @@ Citizen.CreateThread(function()
 	TriggerServerEvent('JEX:CheckPlayer')
 end)
 
-RegisterNetEvent('esx:setJob')
-AddEventHandler('esx:setJob', function(job)
-	PlayerData.job = job
-end)
-
 local blip = {}
 local activebusiness = nil
 local awaitingbusiness = nil
+
+RegisterNetEvent('esx:setJob')
+AddEventHandler('esx:setJob', function(job)
+	PlayerData.job = job
+	activebusiness = nil
+	awaitingbusiness = nil
+	TriggerServerEvent("JEX:checkBusiness", job.name)
+end)
+
+RegisterNetEvent("JEX:BusinessChecked")
+AddEventHandler("JEX:BusinessChecked", function(has, stock)
+	if has then
+		if stock == nil then
+			rememberBusiness(PlayerData.job.name)
+		else
+			activebusiness = PlayerData.job.name
+		end
+	end
+end)
 
 function setblip(name, label, coords, type, colour)       
 	blip[name] = AddBlipForCoord(coords.x, coords.y, coords.z)
@@ -143,9 +157,14 @@ end
 
 -- Main Thread of Business
 Citizen.CreateThread(function()
+	while not PlayerData do
+		print(100)
+		Citizen.Wait(500)
+	end
 	while true do
 		local sleepThread = 1
 		local plyPos = GetEntityCoords(GetPlayerPed(-1))
+		
 		if activebusiness ~= nil then
 			local dist = GetDistanceBetweenCoords(plyPos, Config.Business[activebusiness].pos, true)
 			if dist < 5 then
