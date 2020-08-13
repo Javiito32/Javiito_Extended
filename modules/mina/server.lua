@@ -87,7 +87,7 @@ AddEventHandler('minar:quitomin',function()
 		if xPlayer.inventory[i].name == "lingote_oro" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(22,23))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(10,12))
 				--xPlayer.addMoney(count*math.random(22,23))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'minero', 1*count)
@@ -95,7 +95,7 @@ AddEventHandler('minar:quitomin',function()
 		elseif xPlayer.inventory[i].name == "plata" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(5,8))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(3,4))
 				--xPlayer.addMoney(count*math.random(5,8))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'minero', 1*count)
@@ -103,7 +103,7 @@ AddEventHandler('minar:quitomin',function()
 		elseif xPlayer.inventory[i].name == "lingote_hierro" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(11,13))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(5,7))
 				--xPlayer.addMoney(count*math.random(11,13))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'minero', 1*count)
@@ -111,7 +111,7 @@ AddEventHandler('minar:quitomin',function()
 		elseif xPlayer.inventory[i].name == "carbon" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(5,8))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'minero', count*math.random(2,4))
 				--xPlayer.addMoney(count*math.random(5,8))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'minero', 1*count)

@@ -266,6 +266,7 @@ end
 
 
 ---------------------------------
+local MaderaActionDisabled = false
 local onservice = false
 Citizen.CreateThread(function()
     while true do
@@ -276,8 +277,8 @@ Citizen.CreateThread(function()
             end
             Citizen.Wait(0)
             local coords = GetEntityCoords(GetPlayerPed(-1))
-            local dist = GetDistanceBetweenCoords(coords.x,coords.y,coords.z,troncos[i].x,troncos[i].y,troncos[i].z)
             for i=1, #troncos, 1 do
+                local dist = GetDistanceBetweenCoords(coords.x,coords.y,coords.z,troncos[i].x,troncos[i].y,troncos[i].z)
                 if dist < 75 then
                     if troncos[i].vida >= 25 then
                         DrawText3D(troncos[i].x,troncos[i].y,troncos[i].z, troncos[i].tipo.." ~g~"..troncos[i].vida.."/"..troncos[i].max)
@@ -365,16 +366,18 @@ Citizen.CreateThread(function()
             for k, v in pairs(ConfigMadera.Zones) do
                 if get3DDistance(coords.x, coords.y, coords.z, v.coords.x, v.coords.y, v.coords.z) < v.size then
                     DisplayHelpText(v.help)
-                    if IsControlJustReleased(1, 38) then
+                    if IsControlJustReleased(1, 38) and not MaderaActionDisabled then
                         if k == "spawnMenu" then
                             if ESX.Game.GetVehiclesInArea(v.area, 2)[1] == nil then
                                 ESX.TriggerServerCallback("leñar:dineroVehiculo", function(cb)
                                     if cb then
+                                        MaderaActionDisabled = true
                                         local spawnCoords = ESX.requestJaviitoSpawn(10.0, 5.0, 10, 39, 6.0)
                                         ESX.Game.SpawnVehicle(ConfigMadera.Vehicle, {x = spawnCoords.x, y = spawnCoords.y, z = spawnCoords.z}, spawnCoords.h, function(vehicle)
                                             TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
+                                            MaderaActionDisabled = false
+                                            Citizen.Wait(500)
                                         end)
-                                        Wait(500)
                                     end
                                 end, "get")
                             else
@@ -451,5 +454,5 @@ AddEventHandler("ActualiceBlip", function(_job)
             RemoveBlip(info.blip)
         end
     end
-    job = _job
+    Maderajob = _job
 end)

@@ -67,7 +67,7 @@ AddEventHandler('leñar:quitomin',function()
 		if xPlayer.inventory[i].name == "tablon_abedul" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(20,30))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(10,15))
 				--xPlayer.addMoney(count*math.random(20,30))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
@@ -75,7 +75,7 @@ AddEventHandler('leñar:quitomin',function()
 		elseif xPlayer.inventory[i].name == "tablon_abeto" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(15,25))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(7,12))
 				--xPlayer.addMoney(count*math.random(15,25))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
@@ -83,7 +83,7 @@ AddEventHandler('leñar:quitomin',function()
 		elseif xPlayer.inventory[i].name == "tablon_nogal" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(15,20))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(7,10))
 				--xPlayer.addMoney(count*math.random(15,20))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
@@ -91,7 +91,7 @@ AddEventHandler('leñar:quitomin',function()
 		elseif xPlayer.inventory[i].name == "tablon_roble" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(13,15))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(6,7))
 				--xPlayer.addMoney(count*math.random(13,15))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)
@@ -99,7 +99,7 @@ AddEventHandler('leñar:quitomin',function()
 		elseif xPlayer.inventory[i].name == "tablon_pino" then
 			if xPlayer.inventory[i].count > 0 then
 				local count = xPlayer.inventory[i].count
-				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(30,32))
+				TriggerEvent('JEX:getPayment', xPlayer.identifier, 'madedero', count*math.random(15,16))
 				--xPlayer.addMoney(count*math.random(30,32))
 				xPlayer.removeInventoryItem(xPlayer.inventory[i].name,count)
 				TriggerEvent('JEX:addXP', xPlayer.identifier, 'madedero', 1*count)

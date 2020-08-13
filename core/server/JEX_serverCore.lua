@@ -7,7 +7,7 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 -- Start of XP system
 AddEventHandler('JEX:addXP', function(identifier, work, xp)
     local JEXPlayer = CreateJEXPlayer(identifier)
-    JEXPlayer.addXP(work, xp)
+    JEXPlayer.addXP(work, tonumber(xp))
 end)
 
 AddEventHandler('JEX:LevelUpgrade', function(identifier, level, work)
@@ -30,11 +30,11 @@ AddEventHandler('JEX:getPayment', function(identifier, work, payment, paymentTyp
     local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
 
     if paymentType == 'bank' then
-        xPlayer.addAccountMoney('bank', ESX.Math.Round(payment*JEXPlayer.getXPmultiplier(work)))
+        xPlayer.addAccountMoney('bank', ESX.Math.Round(tonumber(payment)*JEXPlayer.getXPmultiplier(work)))
     elseif paymentType == 'black' then
-        xPlayer.addAccountMoney('black', ESX.Math.Round(payment*JEXPlayer.getXPmultiplier(work)))
+        xPlayer.addAccountMoney('black', ESX.Math.Round(tonumber(payment)*JEXPlayer.getXPmultiplier(work)))
     else
-        xPlayer.addMoney(ESX.Math.Round(payment*JEXPlayer.getXPmultiplier(work)))
+        xPlayer.addMoney(ESX.Math.Round(tonumber(payment)*JEXPlayer.getXPmultiplier(work)))
     end
 end)
 
@@ -158,13 +158,12 @@ AddEventHandler('JEX:buyBusiness', function(job)
             xPlayer.removeInventoryItem(Config.Business[job].initial_pay[i].item, Config.Business[job].initial_pay[i].value)
         end
         TriggerClientEvent('JEX:BusinessBought', source, job)
-        --TriggerClientEvent('esx:showNotification', source, "Has ~g~desbloqueado~w~ el negocio correctamente, como cortesía te hemos regalado 10 de stock")
+        MySQL.Async.execute('UPDATE negocios SET stock = 10 WHERE identifier = @steam64_hex AND job = @_job',
+        { 
+            ['@_job'] = job,
+            ['@steam64_hex'] = xPlayer.identifier
+        })
     end
-    MySQL.Async.execute('UPDATE negocios SET stock = 10 WHERE identifier = @steam64_hex AND job = @_job',
-    { 
-        ['@_job'] = job,
-        ['@steam64_hex'] = xPlayer.identifier
-    })
 end)
 
 RegisterNetEvent('JEX:buyBusinessStock')

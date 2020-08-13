@@ -4,6 +4,16 @@ local FishingJob
 local VehicleBlip
 local SellBlip
 
+Citizen.CreateThread(function()
+    while ESX == nil do
+        Citizen.Wait(500)
+    end
+	while ESX.GetPlayerData().job == nil do
+		Citizen.Wait(500)
+	end
+    FishingJob = ESX.GetPlayerData().job.name
+end)
+
 function setBlips()
     local VehicleBlip = AddBlipForCoord(ConfigFishing.Zones.VehicleSpawner.Pos.x, ConfigFishing.Zones.VehicleSpawner.Pos.y, ConfigFishing.Zones.VehicleSpawner.Pos.z)
     SetBlipSprite  (VehicleBlip, 68)
@@ -36,8 +46,8 @@ AddEventHandler('esx:setJob', function(job)
     if job.name == 'fisherman' then
         setBlips()
     else
-        DeleteBlip(VehicleBlip)
-        DeleteBlip(SellBlip)
+        RemoveBlip(VehicleBlip)
+        RemoveBlip(SellBlip)
     end
 end)
 

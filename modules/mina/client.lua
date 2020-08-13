@@ -152,14 +152,14 @@ function setUniformMina(job, playerPed)
     TriggerEvent('skinchanger:getSkin', function(skin)
   
       if skin.sex == 0 then
-        if ConfigMadera.Uniforms[job].male ~= nil then
-          TriggerEvent('skinchanger:loadClothes', skin, ConfigMadera.Uniforms[job].male)
+        if ConfigMina.Uniforms[job].male ~= nil then
+          TriggerEvent('skinchanger:loadClothes', skin, ConfigMina.Uniforms[job].male)
         else
           ESX.ShowNotification(_U('no_outfit'))
         end
       else
-        if ConfigMadera.Uniforms[job].female ~= nil then
-          TriggerEvent('skinchanger:loadClothes', skin, ConfigMadera.Uniforms[job].female)
+        if ConfigMina.Uniforms[job].female ~= nil then
+          TriggerEvent('skinchanger:loadClothes', skin, ConfigMina.Uniforms[job].female)
         else
           ESX.ShowNotification(_U('no_outfit'))
         end
@@ -168,6 +168,7 @@ function setUniformMina(job, playerPed)
     end)
 end
 
+local MinaActionDisabled = false
 local onservice = false
 Citizen.CreateThread(function()
     while true do
@@ -267,16 +268,18 @@ Citizen.CreateThread(function()
                 for k, v in pairs(ConfigMina.Zones) do
                     if get3DDistance(coords.x, coords.y, coords.z, v.coords.x, v.coords.y, v.coords.z) < v.size then
                         DisplayHelpText(v.help)
-                        if IsControlJustReleased(1, 38) then
+                        if IsControlJustReleased(1, 38) and not MinaActionDisabled then
                             if k == "spawnMenu" then
                                 if ESX.Game.GetVehiclesInArea(v.area, 3)[1] == nil then
                                     ESX.TriggerServerCallback("minar:dineroVehiculo", function(cb)
                                         if cb then
+                                            MinaActionDisabled = true
                                             local spawnCoords = ESX.requestJaviitoSpawn(10.0, 5.0, 10, 39, 6.0)
-                                            ESX.Game.SpawnVehicle(ConfigMadera.Vehicle, {x = spawnCoords.x, y = spawnCoords.y, z = spawnCoords.z}, spawnCoords.h, function(vehicle)
+                                            ESX.Game.SpawnVehicle(ConfigMina.Vehicle, {x = spawnCoords.x, y = spawnCoords.y, z = spawnCoords.z}, spawnCoords.h, function(vehicle)
                                                 TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
+                                                MinaActionDisabled = false
+                                                Citizen.Wait(500)
                                             end)
-                                            Wait(5000)
                                         end
                                     end, "get")
                                 else
