@@ -296,6 +296,7 @@ Citizen.CreateThread(function()
                 if IsControlJustReleased(1,  24) then --click izq
                     if cooldown == 0 then
                         for i=1, #troncos, 1 do
+                            local dist = GetDistanceBetweenCoords(coords.x,coords.y,coords.z,troncos[i].x,troncos[i].y,troncos[i].z)
                             if dist < 1.8 and troncos[i].vida > 0 then
                                 tronco = i
                             end

@@ -16,6 +16,7 @@ client_scripts {
     'modules/mina/client.lua',
     'modules/fishing/config.lua',
     'modules/fishing/client.lua',
+    'modules/carrying/client.lua',
 }
 
 server_scripts {
@@ -35,4 +36,5 @@ server_scripts {
     'modules/mina/server.lua',
     'modules/fishing/config.lua',
     'modules/fishing/server.lua',
+    'modules/carrying/server.lua',
 }
