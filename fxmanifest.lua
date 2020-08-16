@@ -17,6 +17,7 @@ client_scripts {
     'modules/fishing/config.lua',
     'modules/fishing/client.lua',
     'modules/carrying/client.lua',
+    'modules/autofix/client.lua',
 }
 
 server_scripts {

@@ -24,6 +24,9 @@ AddEventHandler('esx:setJob', function(job)
 	PlayerData.job = job
 	activebusiness = nil
 	awaitingbusiness = nil
+	RemoveBlip(blip['businessTask'])
+	RemoveBlip(blip['activebusiness'])
+	blip = {}
 	TriggerServerEvent("JEX:checkBusiness", job.name)
 end)
 
@@ -34,6 +37,7 @@ AddEventHandler("JEX:BusinessChecked", function(has, stock)
 			rememberBusiness(PlayerData.job.name)
 		else
 			activebusiness = PlayerData.job.name
+			setblip("activebusiness", "Negocio - "..PlayerData.job.name, Config.Business[PlayerData.job.name].pos, 375, 5)
 		end
 	end
 end)
@@ -114,11 +118,15 @@ function openBusinessMenu(job)
 			{label = "-- Precio del Stock --"},
 			
 		}
-		for k, v in pairs(Config.Business[job].stock_price) do
-			if v.value == 1 then
-				table.insert(_elements, {label = "Uno de "..v.label})
-			else
-				table.insert(_elements, {label = v.value.." de "..v.label})
+		if Config.Business[job].initial_type == 'cash' then
+			table.insert(_elements, {label = "<font color='green'>$"..Config.Business[job].stock_price.."</font>"})
+		else
+			for k, v in pairs(Config.Business[job].stock_price) do
+				if v.value == 1 then
+					table.insert(_elements, {label = "Uno de "..v.label})
+				else
+					table.insert(_elements, {label = v.value.." de "..v.label})
+				end
 			end
 		end
 		

@@ -38,6 +38,12 @@ AddEventHandler('JEX:getPayment', function(identifier, work, payment, paymentTyp
     end
 end)
 
+AddEventHandler('JEX:setInemJob', function(identifier, work)
+    local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
+    local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
+    xPlayer.setJob(work, tonumber(JEXPlayer.getXPLevel(work)))
+end)
+
 RegisterNetEvent('JEX:CheckPlayer')
 AddEventHandler('JEX:CheckPlayer', function()
     local _source = source
@@ -146,23 +152,36 @@ RegisterNetEvent('JEX:buyBusiness')
 AddEventHandler('JEX:buyBusiness', function(job)
     local isable = true
     local xPlayer = ESX.GetPlayerFromId(source)
-    for i = 1, #Config.Business[job].initial_pay, 1 do
-        local xItem = xPlayer.getInventoryItem(Config.Business[job].initial_pay[i].item)
-        if xItem.count < Config.Business[job].initial_pay[i].value then
-            TriggerClientEvent('esx:showNotification', source, "Te faltan "..Config.Business[job].initial_pay[i].value-xItem.count.." de "..xItem.label)
-            isable = false
-        end
-    end
-    if isable then
+    if Config.Business[job].initial_type == 'items' then
         for i = 1, #Config.Business[job].initial_pay, 1 do
-            xPlayer.removeInventoryItem(Config.Business[job].initial_pay[i].item, Config.Business[job].initial_pay[i].value)
+            local xItem = xPlayer.getInventoryItem(Config.Business[job].initial_pay[i].item)
+            if xItem.count < Config.Business[job].initial_pay[i].value then
+                TriggerClientEvent('esx:showNotification', source, "Te faltan "..Config.Business[job].initial_pay[i].value-xItem.count.." de "..xItem.label)
+                isable = false
+            end
         end
-        TriggerClientEvent('JEX:BusinessBought', source, job)
-        MySQL.Async.execute('UPDATE negocios SET stock = 10 WHERE identifier = @steam64_hex AND job = @_job',
-        { 
-            ['@_job'] = job,
-            ['@steam64_hex'] = xPlayer.identifier
-        })
+        if isable then
+            for i = 1, #Config.Business[job].initial_pay, 1 do
+                xPlayer.removeInventoryItem(Config.Business[job].initial_pay[i].item, Config.Business[job].initial_pay[i].value)
+            end
+            TriggerClientEvent('JEX:BusinessBought', source, job)
+            MySQL.Async.execute('UPDATE negocios SET stock = 10 WHERE identifier = @steam64_hex AND job = @_job',
+            { 
+                ['@_job'] = job,
+                ['@steam64_hex'] = xPlayer.identifier
+            })
+        end
+    elseif Config.Business[job].initial_type == 'cash' then
+        if xPlayer.getMoney() >= Config.Business[job].initial_pay then
+            TriggerClientEvent('JEX:BusinessBought', source, job)
+            MySQL.Async.execute('UPDATE negocios SET stock = 10 WHERE identifier = @steam64_hex AND job = @_job',
+            { 
+                ['@_job'] = job,
+                ['@steam64_hex'] = xPlayer.identifier
+            })
+        else
+            TriggerClientEvent('esx:showNotification', source, "Te faltan <font color='green'>$</font>"..Config.Business[job].initial_pay-xPlayer.getMoney())
+        end
     end
 end)
 
@@ -170,26 +189,41 @@ RegisterNetEvent('JEX:buyBusinessStock')
 AddEventHandler('JEX:buyBusinessStock', function(job, quantity)
     local xPlayer = ESX.GetPlayerFromId(source)
     local isable = true
-    for i = 1, #Config.Business[job].stock_price, 1 do
-        local xItem = xPlayer.getInventoryItem(Config.Business[job].stock_price[i].item)
-        local mustHave = Config.Business[job].stock_price[i].value*quantity
-        if xItem.count < mustHave then
-            TriggerClientEvent('esx:showNotification', source, "Te faltan "..mustHave-xItem.count.." de "..xItem.label)
-            isable = false
-        end
-    end
-    if isable then
+    if Config.Business[job].initial_type == 'items' then
         for i = 1, #Config.Business[job].stock_price, 1 do
-            local toBeDeleted = Config.Business[job].stock_price[i].value*quantity
-            xPlayer.removeInventoryItem(Config.Business[job].stock_price[i].item, toBeDeleted)
+            local xItem = xPlayer.getInventoryItem(Config.Business[job].stock_price[i].item)
+            local mustHave = Config.Business[job].stock_price[i].value*quantity
+            if xItem.count < mustHave then
+                TriggerClientEvent('esx:showNotification', source, "Te faltan "..mustHave-xItem.count.." de "..xItem.label)
+                isable = false
+            end
         end
-        TriggerClientEvent('esx:showNotification', source, "Has obtenido ~g~"..quantity.." de stock")
-        MySQL.Async.execute('UPDATE negocios SET stock = stock + @_stock WHERE identifier = @steam64_hex AND job = @_job',
-        { 
-            ['@_job'] = job,
-            ['@_stock'] = quantity,
-            ['@steam64_hex'] = xPlayer.identifier
-        })
+        if isable then
+            for i = 1, #Config.Business[job].stock_price, 1 do
+                local toBeDeleted = Config.Business[job].stock_price[i].value*quantity
+                xPlayer.removeInventoryItem(Config.Business[job].stock_price[i].item, toBeDeleted)
+            end
+            TriggerClientEvent('esx:showNotification', source, "Has obtenido ~g~"..quantity.." de stock")
+            MySQL.Async.execute('UPDATE negocios SET stock = stock + @_stock WHERE identifier = @steam64_hex AND job = @_job',
+            { 
+                ['@_job'] = job,
+                ['@_stock'] = quantity,
+                ['@steam64_hex'] = xPlayer.identifier
+            })
+        end
+    elseif Config.Business[job].initial_type == 'cash' then
+        if xPlayer.getMoney() >= Config.Business[job].stock_price*quantity then
+            xPlayer.removeMoney(Config.Business[job].stock_price*quantity)
+            TriggerClientEvent('esx:showNotification', source, "Has obtenido ~g~"..quantity.." de stock")
+            MySQL.Async.execute('UPDATE negocios SET stock = stock + @_stock WHERE identifier = @steam64_hex AND job = @_job',
+            { 
+                ['@_job'] = job,
+                ['@_stock'] = quantity,
+                ['@steam64_hex'] = xPlayer.identifier
+            })
+        else
+            TriggerClientEvent('esx:showNotification', source, "Te faltan <font color='green'>$"..Config.Business[job].stock_price*quantity-xPlayer.getMoney().."</font>")
+        end
     end
 end)
 

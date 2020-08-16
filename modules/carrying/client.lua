@@ -28,17 +28,17 @@ function OpenActionMenuInteraction(target)
 
 	local elements = {}
 
-	table.insert(elements, {label = ('arrastrar'), value = 'drag'})
-	table.insert(elements, {label = ('a cuestas'), value = 'piggyback'})
+	table.insert(elements, {label = ('Coger en brazos'), value = 'drag'})
+	table.insert(elements, {label = ('A caballito'), value = 'piggyback'})
 	table.insert(elements, {label = ('llevar'), value = 'carry'})
-	table.insert(elements, {label = ('tomar rehenes'), value = 'takehostage'})
+	table.insert(elements, {label = ('Tomar rehen'), value = 'takehostage'})
 	ESX.UI.Menu.CloseAll()
 
 	ESX.UI.Menu.Open(
 		'default', GetCurrentResourceName(), 'action_menu',
 		{
 			title    = ('Llevar'),
-			align    = 'top-left',
+			align    = 'bottom-right',
 			elements = elements
 		},function(data, menu)
 
@@ -48,7 +48,6 @@ function OpenActionMenuInteraction(target)
 		
 			if data.current.value == 'drag' then			
 				TriggerServerEvent('esx_barbie_lyftupp:checkRope')
-				ESX.ShowNotification('You are lifting this person up...')
 				TriggerServerEvent('esx_barbie_lyftupp:lyfteruppn', GetPlayerServerId(player))
 				Citizen.Wait(1000)
 				if hasRope == true then
