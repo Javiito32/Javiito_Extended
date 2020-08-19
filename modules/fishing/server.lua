@@ -10,24 +10,40 @@ AddEventHandler('JEX:addFishes', function(level)
     end
     if #totalFishes <= 2 then
         for _, v in pairs(totalFishes) do
-            xPlayer.addInventoryItem(v, math.random(5, 8))
+            local xItem = xPlayer.getInventoryItem(v)
+            local random = math.random(5, 8)
+            if xItem.count + random <= xItem.limit then
+                xPlayer.addInventoryItem(v, random)
+            end
         end
     elseif #totalFishes <= 4 then
         for _, v in pairs(totalFishes) do
             if math.random(1, 10) <= 5 then
-                xPlayer.addInventoryItem(v, math.random(4, 6))
+                local xItem = xPlayer.getInventoryItem(v)
+                local random = math.random(4, 6)
+                if xItem.count + random <= xItem.limit then
+                    xPlayer.addInventoryItem(v, random)
+                end
             end
         end
     elseif #totalFishes <= 6 then
         for _, v in pairs(totalFishes) do
             if math.random(1, 10) <= 4 then
-                xPlayer.addInventoryItem(v, math.random(4, 6))
+                local xItem = xPlayer.getInventoryItem(v)
+                local random = math.random(4, 6)
+                if xItem.count + random <= xItem.limit then
+                    xPlayer.addInventoryItem(v, random)
+                end
             end
         end
     elseif #totalFishes <= 10 then
         for _, v in pairs(totalFishes) do
-            if math.random(1, 10) <= 2 then
-                xPlayer.addInventoryItem(v, math.random(4, 6))
+            if math.random(1, 10) <= 3 then
+                local xItem = xPlayer.getInventoryItem(v)
+                local random = math.random(4, 6)
+                if xItem.count + random <= xItem.limit then
+                    xPlayer.addInventoryItem(v, random)
+                end
             end
         end
     end

@@ -13,15 +13,15 @@ ConfigFishing.Levels = {
 }
 
 ConfigFishing.Prices = {
-    salmon = 20,
-    anchoa = 20,
-    pescadilla = 40,
-    sardinas = 40,
-    merluza = 60,
-    lubina = 60,
-    rodaballo = 80,
-    rape = 80,
-    pez_espada = 100
+    salmon = 7,
+    anchoa = 7,
+    pescadilla = 13,
+    sardinas = 13,
+    merluza = 20,
+    lubina = 20,
+    rodaballo = 27,
+    rape = 27,
+    pez_espada = 34
 }
 
 ConfigFishing.Vehicle = "tug"

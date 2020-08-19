@@ -13,7 +13,7 @@ end)
 AddEventHandler('JEX:LevelUpgrade', function(identifier, level, work)
     local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
     xPlayer.setJob(work, tonumber(level))
-    TriggerClientEvent('JEX:setLevel', xPlayer.source, work, tonumber(level))
+    TriggerClientEvent('JEX:setLevel', xPlayer.source, work, tonumber(level), true)
     TriggerClientEvent('chat:addMessage', xPlayer.source, {
         color = { 255, 0, 0},
         multiline = true,
@@ -40,8 +40,12 @@ end)
 
 AddEventHandler('JEX:setInemJob', function(identifier, work)
     local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
-    local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
-    xPlayer.setJob(work, tonumber(JEXPlayer.getXPLevel(work)))
+    if Config.WorkLevels[work] then
+        local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
+        xPlayer.setJob(work, tonumber(JEXPlayer.getXPLevel(work)))
+    else
+        xPlayer.setJob(work, 0)
+    end
 end)
 
 RegisterNetEvent('JEX:CheckPlayer')
