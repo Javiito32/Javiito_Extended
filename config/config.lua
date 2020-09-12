@@ -79,4 +79,7 @@ Config.WorkLabels = {
     madedero = "Leñador",
     trucker = "Camionero",
     fisherman = "Pescador",
+    works = "Mantenimiento",
+    busdriver = "Autobusero",
+    farmer = "Granjero",
 }

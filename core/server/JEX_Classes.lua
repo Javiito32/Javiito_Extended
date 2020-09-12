@@ -62,5 +62,13 @@ function CreateJEXPlayer(identifier)
         end
     end
 
+    self.getAllXP = function()
+        return self.xp
+    end
+
+    self.getAllLevels = function()
+        return self.levelsxp
+    end
+
     return self
 end

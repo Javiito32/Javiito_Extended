@@ -145,6 +145,11 @@ Citizen.CreateThread(function()
     end
 end)
 
+function MinaTutorial()
+    SetNewWaypoint(2972.36, 2775.44)
+	ESX.ShowNotification("Dirigete a la zona de rocas para comenzar a minar")
+end
+
 ---------------------------------
 --------Ropa de trabajo----------
 ---------------------------------
@@ -279,6 +284,7 @@ Citizen.CreateThread(function()
                                                 TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
                                                 MinaActionDisabled = false
                                                 Citizen.Wait(500)
+                                                MinaTutorial()
                                             end)
                                         end
                                     end, "get")

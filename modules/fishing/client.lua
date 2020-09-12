@@ -48,6 +48,8 @@ AddEventHandler('esx:setJob', function(job)
     else
         RemoveBlip(VehicleBlip)
         RemoveBlip(SellBlip)
+        SellBlip = nil
+        SellBlip = nil
     end
 end)
 

@@ -7,6 +7,7 @@ client_scripts {
     '@es_extended/locale.lua',
     'config/config.lua',
     'config/client_config.lua',
+    'config/xp_level.lua',
     'core/common.lua',
     'core/client/JEX_clientCore.lua',
 

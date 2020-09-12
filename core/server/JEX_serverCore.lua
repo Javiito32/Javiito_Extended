@@ -13,7 +13,7 @@ end)
 AddEventHandler('JEX:LevelUpgrade', function(identifier, level, work)
     local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
     xPlayer.setJob(work, tonumber(level))
-    TriggerClientEvent('JEX:setLevel', xPlayer.source, work, tonumber(level), true)
+    TriggerClientEvent('JEX:setLevel', xPlayer.source, work, tonumber(level))
     TriggerClientEvent('chat:addMessage', xPlayer.source, {
         color = { 255, 0, 0},
         multiline = true,
@@ -40,7 +40,8 @@ end)
 
 AddEventHandler('JEX:setInemJob', function(identifier, work)
     local xPlayer = ESX.GetPlayerFromIdentifier(identifier)
-    if Config.WorkLevels[work] then
+    TriggerClientEvent('JEX:tutorialJob', xPlayer.source, work)
+    if work ~= 'garbage' and work ~= 'unemployed' then
         local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
         xPlayer.setJob(work, tonumber(JEXPlayer.getXPLevel(work)))
     else
@@ -279,3 +280,11 @@ Citizen.CreateThread(function()
 end)
 
 -- End of XP system
+
+RegisterCommand('stats', function(source)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local JEXPlayer = CreateJEXPlayer(xPlayer.identifier)
+    local xp = JEXPlayer.getAllXP()
+    local levelsxp = JEXPlayer.getAllLevels()
+    TriggerClientEvent('JEX:ShowStats', source, xp, levelsxp)
+end)

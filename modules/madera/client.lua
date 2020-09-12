@@ -264,6 +264,10 @@ function restoreWear()
       end)
 end
 
+function MaderaTutorial()
+    SetNewWaypoint(-557.61, 5419.43)
+	ESX.ShowNotification("Dirigete a la zona de arboles para comenzar a talar")
+end
 
 ---------------------------------
 local MaderaActionDisabled = false
@@ -377,6 +381,7 @@ Citizen.CreateThread(function()
                                         ESX.Game.SpawnVehicle(ConfigMadera.Vehicle, {x = spawnCoords.x, y = spawnCoords.y, z = spawnCoords.z}, spawnCoords.h, function(vehicle)
                                             TaskWarpPedIntoVehicle(GetPlayerPed(-1), vehicle, -1)
                                             MaderaActionDisabled = false
+                                            MaderaTutorial()
                                             Citizen.Wait(500)
                                         end)
                                     end

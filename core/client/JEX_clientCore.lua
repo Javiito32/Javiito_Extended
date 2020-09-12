@@ -207,3 +207,28 @@ Citizen.CreateThread(function()
 		Citizen.Wait(sleepThread)
 	end
 end)
+
+RegisterNetEvent('JEX:tutorialJob')
+AddEventHandler('JEX:tutorialJob', function(work)
+	SetNewWaypoint(Help[work].coords.x, Help[work].coords.y)
+	ESX.ShowNotification(Help[work].msg)
+end)
+
+RegisterNetEvent('JEX:ShowStats')
+AddEventHandler('JEX:ShowStats', function(xp, levels)
+	local _elements = {}
+	for k, v in pairs(WorkLevels) do
+		table.insert(_elements, { label = getLabelFromWork(k).." Experiencia: "..xp[k].." / "..v[levels[k]+1].." | Nivel: "..levels[k]})
+	end
+	TriggerEvent('gym:getStamina', function(stamina)
+		table.insert(_elements, { label = "Gimnasio: "..stamina.." / ∞"})
+	end)
+
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'xp_level_and_stats', {
+		title    = ("Universidad"),
+		align    = 'bottom-right',
+		elements = _elements
+	}, function(data2, menu2)
+		menu2.close()
+	end, function(data2, menu2) menu2.close() end)
+end)

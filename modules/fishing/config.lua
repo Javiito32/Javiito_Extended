@@ -68,24 +68,24 @@ ConfigFishing.Zones = {
 ConfigFishing.Uniforms = {
 	job_wear = {
 		male = {
-			['tshirt_1'] = 59, ['tshirt_2'] = math.random(0, 1),
-			['torso_1'] = 5, ['torso_2'] = 0,
+			['tshirt_1'] = 15, ['tshirt_2'] = 0,
+			['torso_1'] = 253, ['torso_2'] = 0,
 			['decals_1'] = 0, ['decals_2'] = 0,
-			['arms'] = 15,
-			['pants_1'] = 36, ['pants_2'] = 0,
-			['shoes_1'] = 71, ['shoes_2'] = 0,
-			['helmet_1'] = 0, ['helmet_2'] = 3,
+			['arms'] = 17,
+			['pants_1'] = 97, ['pants_2'] = 0,
+			['shoes_1'] = 70, ['shoes_2'] = 0,
+			['helmet_1'] = -1, ['helmet_2'] = 0,
 			['chain_1'] = 0, ['chain_2'] = 0,
 			['ears_1'] = -1, ['ears_2'] = 0
 		},
 		female = {
-			['tshirt_1'] = 36, ['tshirt_2'] = 1,
-			['torso_1'] = 11, ['torso_2'] = 11,
+			['tshirt_1'] = 15, ['tshirt_2'] = 0,
+			['torso_1'] = 261, ['torso_2'] = 0,
 			['decals_1'] = 0, ['decals_2'] = 0,
-			['arms'] = 24,
-			['pants_1'] = 11, ['pants_2'] = 0,
-			['shoes_1'] = 26, ['shoes_2'] = 0,
-			['helmet_1'] = 0, ['helmet_2'] = 7,
+			['arms'] = 17,
+			['pants_1'] = 101, ['pants_2'] = 0,
+			['shoes_1'] = 74, ['shoes_2'] = 0,
+			['helmet_1'] = -1, ['helmet_2'] = 0,
 			['chain_1'] = 0, ['chain_2'] = 0,
 			['ears_1'] = -1, ['ears_2'] = 0
 		}
