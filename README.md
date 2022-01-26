@@ -5,7 +5,7 @@ _JEX add a few features to the ESX framework for Jobs_
 ## This is a final versión for ESX V1
 _There will not be any update, feel free to PR if you want_
 
-## Caracteristics 🚀
+## Characteristic 🚀
 
 - Levels for Jobs
 - Level rewards multiplier
